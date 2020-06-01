@@ -39,6 +39,7 @@ func IngressRouteToHTTPProxy(ir *irv1beta1.IngressRoute) (*hpv1.HTTPProxy, []str
 	var tcpproxy *hpv1.TCPProxy
 
 	var includes []hpv1.Include
+	var vhost *hpv1.VirtualHost
 
 	if ir.Spec.TCPProxy != nil {
 		if ir.Spec.VirtualHost == nil {
@@ -58,7 +59,9 @@ func IngressRouteToHTTPProxy(ir *irv1beta1.IngressRoute) (*hpv1.HTTPProxy, []str
 		warnings = append(warnings, tcpwarnings...)
 	}
 
-	if ir.Spec.VirtualHost == nil {
+	if ir.Spec.VirtualHost != nil {
+		vhost = translateVirtualHost(ir.Spec.VirtualHost)
+	} else {
 		routePrefixes := extractPrefixes(ir.Spec.Routes)
 		routeLCP = longestCommonPathPrefix(routePrefixes)
 		if routeLCP == "" && len(routePrefixes) > 1 {
@@ -73,7 +76,6 @@ func IngressRouteToHTTPProxy(ir *irv1beta1.IngressRoute) (*hpv1.HTTPProxy, []str
 		if routeLCP != "" {
 			warnings = append(warnings, fmt.Sprintf("The guess for the IngressRoute include path is %s. HTTPProxy prefix conditions should not include the include prefix. Please check this value is correct. See https://projectcontour.io/docs/master/httpproxy/#conditions-and-inclusion", routeLCP))
 		}
-
 	}
 
 	routes, routeIncludes, translateWarnings := translateRoutes(ir.Spec.Routes, routeLCP)
@@ -97,7 +99,7 @@ func IngressRouteToHTTPProxy(ir *irv1beta1.IngressRoute) (*hpv1.HTTPProxy, []str
 			Annotations: ir.ObjectMeta.DeepCopy().GetAnnotations(),
 		},
 		Spec: hpv1.HTTPProxySpec{
-			VirtualHost: ir.Spec.VirtualHost,
+			VirtualHost: vhost,
 			Routes:      routes,
 			Includes:    includes,
 			TCPProxy:    tcpproxy,
@@ -276,6 +278,22 @@ func translateTCPProxy(irTCPProxy *irv1beta1.TCPProxy) (*hpv1.TCPProxy, []hpv1.I
 		proxy.Services = append(proxy.Services, hpService)
 	}
 	return proxy, includes, warnings, nil
+}
+
+func translateVirtualHost(irVHost *irv1beta1.VirtualHost) *hpv1.VirtualHost {
+	vhost := &hpv1.VirtualHost{
+		Fqdn: irVHost.Fqdn,
+	}
+
+	if irVHost.TLS != nil {
+		vhost.TLS = &hpv1.TLS{
+			SecretName:             irVHost.TLS.SecretName,
+			MinimumProtocolVersion: irVHost.TLS.MinimumProtocolVersion,
+			Passthrough:            irVHost.TLS.Passthrough,
+		}
+	}
+	return vhost
+
 }
 
 func extractPrefixes(routes []irv1beta1.Route) []string {

@@ -18,13 +18,12 @@ import (
 	"fmt"
 
 	irv1beta1 "github.com/projectcontour/contour/apis/contour/v1beta1"
-	contourscheme "github.com/projectcontour/contour/apis/generated/clientset/versioned/scheme"
 	"k8s.io/client-go/kubernetes/scheme"
 )
 
 // DecodeIngressRoute decodes a given byte stream into a IngressRoute or returns an error.
 func DecodeIngressRoute(input []byte) (*irv1beta1.IngressRoute, error) {
-	contourscheme.AddToScheme(scheme.Scheme)
+	irv1beta1.AddToScheme(scheme.Scheme)
 	decode := scheme.Codecs.UniversalDeserializer().Decode
 	ir, groupVersionKind, err := decode(input, nil, nil)
 	if err != nil {

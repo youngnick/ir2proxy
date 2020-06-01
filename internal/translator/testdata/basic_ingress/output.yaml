@@ -13,4 +13,3 @@ spec:
       port: 80
   virtualhost:
     fqdn: foo-basic.bar.com
-status: {}

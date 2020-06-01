@@ -15,4 +15,3 @@ spec:
       port: 80
   virtualhost:
     fqdn: multi.bar.com
-status: {}

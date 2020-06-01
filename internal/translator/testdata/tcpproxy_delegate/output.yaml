@@ -11,4 +11,3 @@ spec:
     fqdn: tcpproxy-test.domain.com
     tls:
       secretName: secret
-status: {}

@@ -16,4 +16,3 @@ spec:
     services:
     - name: s1
       port: 80
-status: {}

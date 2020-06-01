@@ -42,6 +42,7 @@ func TestTranslateIngressRoute(t *testing.T) {
 			// so filter it out.
 			// See https://github.com/projectcontour/ir2proxy/issues/8 for more explanation here.
 			outputYAML = bytes.ReplaceAll(outputYAML, []byte("  creationTimestamp: null\n"), []byte(""))
+			outputYAML = bytes.ReplaceAll(outputYAML, []byte("status:\n  loadBalancer: {}"), []byte(""))
 
 			translateDiff := cmp.Diff(bytes.TrimSpace(outputYAML), bytes.TrimSpace(tc.output))
 			if translateDiff != "" {

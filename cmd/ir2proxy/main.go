@@ -73,6 +73,7 @@ func run() int {
 		// so filter it out.
 		// See https://github.com/projectcontour/ir2proxy/issues/8 for more explanation here.
 		outputYAML = bytes.ReplaceAll(outputYAML, []byte("  creationTimestamp: null\n"), []byte(""))
+		outputYAML = bytes.ReplaceAll(outputYAML, []byte("status:\n  loadBalancer: {}"), []byte(""))
 		outputWarnings := commentedWarnings(warnings)
 		fmt.Printf("---\n%s\n%s", outputWarnings, outputYAML)
 	}

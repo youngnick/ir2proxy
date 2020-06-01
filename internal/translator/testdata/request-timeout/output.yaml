@@ -15,4 +15,3 @@ spec:
       response: 1s
   virtualhost:
     fqdn: timeout.bar.com
-status: {}

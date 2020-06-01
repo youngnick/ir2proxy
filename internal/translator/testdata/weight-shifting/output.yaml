@@ -17,4 +17,3 @@ spec:
       weight: 90
   virtualhost:
     fqdn: weights.bar.com
-status: {}
